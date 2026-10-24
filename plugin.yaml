@@ -1,0 +1,53 @@
+name: gemini-stt
+version: 1.0.0
+manifest_version: 2
+description: "Google Gemini speech-to-text for Hermes (gemini-3.8-flash and gemini-3.5-transcribe)."
+author: "Hermes Community"
+license: MIT
+kind: standalone
+requires_hermes: ">=0.22.2"
+requires_env:
+  - GEMINI_API_KEY
+tags: [stt, voice, gemini]
+config_schema:
+  timeout:
+    type: float
+    default: 180
+    description: "Read timeout for one Gemini request, in seconds (10-900)."
+  max_retries:
+    type: int
+    default: 2
+    description: "Retries for connection failures, 429 and 5xx (0-5)."
+  thinking_level:
+    type: str
+    default: low
+    description: "Reasoning effort for general models: low, medium or high. Gemini 3.8 Flash does not support 'minimal'."
+  base_url:
+    type: str
+    default: ""
+    description: "Optional Gemini-compatible HTTPS endpoint; empty uses the public API."
+  files_api_threshold_mb:
+    type: float
+    default: 12
+    description: "Raw audio above this size is uploaded through the Files API instead of inlined."
+  transcription_mode:
+    type: str
+    default: verbatim
+    description: "gemini-3.5-transcribe mode: verbatim or smart."
+  diarize:
+    type: bool
+    default: false
+    description: "Add speaker labels (gemini-3.5-transcribe only)."
+  language_mode:
+    type: str
+    default: hint
+    description: "hint sends stt.gemini.language; auto lets Gemini detect the language."
+  keep_uploaded_files:
+    type: bool
+    default: false
+    description: "Keep Files API uploads for 48h instead of deleting them immediately."
+  api_key:
+    type: secret
+    env: GEMINI_API_KEY
+    default: ""
+    description: "Optional key override; prefer GEMINI_API_KEY in ~/.hermes/.env."
