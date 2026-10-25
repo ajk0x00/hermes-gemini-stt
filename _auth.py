@@ -54,15 +54,15 @@ def api_root(base_url: str) -> str:
     return trimmed[: -len("/v1beta")] if trimmed.endswith("/v1beta") else trimmed
 
 
-def normalise_model(model: str | None) -> str:
+def normalise_model(model: str | None, default: str = DEFAULT_MODEL) -> str:
     """Accept ``google/gemini-3.8-flash`` / ``models/gemini-3.8-flash`` spellings, return the wire id."""
     value = (model or "").strip()
     if not value:
-        return DEFAULT_MODEL
+        return default
     for prefix in ("google/", "models/"):
         while value.startswith(prefix):
             value = value[len(prefix):]
-    return value or DEFAULT_MODEL
+    return value or default
 
 
 def redact(message: str, api_key: str) -> str:

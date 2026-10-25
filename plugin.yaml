@@ -1,14 +1,14 @@
 name: gemini-stt
-version: 1.0.0
+version: 1.1.0
 manifest_version: 2
-description: "Google Gemini speech-to-text for Hermes (gemini-3.8-flash and gemini-3.5-transcribe)."
+description: "Google Gemini voice for Hermes: speech-to-text plus 3.8 TTS with automatic audio tagging."
 author: "Hermes Community"
 license: MIT
 kind: standalone
 requires_hermes: ">=0.22.2"
 requires_env:
   - GEMINI_API_KEY
-tags: [stt, voice, gemini]
+tags: [stt, tts, voice, gemini, audio-tags]
 config_schema:
   timeout:
     type: float
@@ -46,6 +46,46 @@ config_schema:
     type: bool
     default: false
     description: "Keep Files API uploads for 48h instead of deleting them immediately."
+  tts_model:
+    type: str
+    default: gemini-3.8-flash-tts
+    description: "Default Gemini TTS model; used when tts.model is not set."
+  tts_voice:
+    type: str
+    default: Kore
+    description: "Default Gemini prebuilt voice, custom voice ID, or voice_... persona."
+  tts_style:
+    type: str
+    default: ""
+    description: "Optional sustained style for 3.8 TTS, sent as speech_metadata.style."
+  tts_audio_tags:
+    type: bool
+    default: true
+    description: "Automatically insert Gemini 3.8 angle-bracket audio tags before synthesis."
+  tts_audio_tags_streaming:
+    type: bool
+    default: true
+    description: "Apply automatic audio tags on the sentence-streaming path too."
+  tts_tag_model:
+    type: str
+    default: gemini-3.1-flash-lite
+    description: "Fast text model used only to insert audio tags; 3.8 Flash is too slow here."
+  tts_tag_timeout:
+    type: float
+    default: 5.0
+    description: "Maximum seconds to wait for the tagger before speaking untagged (1-30)."
+  tts_timeout:
+    type: float
+    default: 120.0
+    description: "Read timeout for one Gemini TTS request, in seconds (10-900)."
+  tts_max_retries:
+    type: int
+    default: 2
+    description: "Retries for TTS connect failures, 429 and 5xx (0-5)."
+  tts_ffmpeg_path:
+    type: str
+    default: ""
+    description: "Optional ffmpeg path; empty auto-detects PATH or the bundled Hermes binary."
   api_key:
     type: secret
     env: GEMINI_API_KEY

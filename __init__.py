@@ -1,8 +1,10 @@
-"""Gemini speech-to-text provider for Hermes.
+"""Gemini voice providers for Hermes: speech-to-text and text-to-speech.
 
-Registered through ``ctx.register_transcription_provider`` and selected with
-``stt.provider: gemini``. Model and language come from ``stt.gemini.*`` via the dispatcher;
-everything else comes from ``plugins.entries.gemini-stt.settings.*``.
+STT registers through ``ctx.register_transcription_provider`` and is selected with
+``stt.provider: gemini``. TTS registers through ``ctx.register_tts_provider`` under
+``tts.provider: gemini-tts`` (the built-in owns the ``gemini`` TTS name). Model and language
+come from ``stt.gemini.*`` via the dispatcher; everything else comes from
+``plugins.entries.gemini-stt.settings.*``.
 """
 
 from __future__ import annotations
@@ -25,6 +27,7 @@ from ._payload import build_payload, inline_budget_bytes
 from ._settings import DEFAULT_MODEL, load_settings
 from ._text import cleanup_transcript
 from ._transport import GeminiAPIError, GeminiTransport
+from ._tts import GeminiTTSProvider, TTS_PROVIDER_NAME
 
 logger = logging.getLogger("hermes.plugins.gemini_stt")
 
@@ -215,5 +218,15 @@ class GeminiTranscriptionProvider(TranscriptionProvider):
 
 
 def register(ctx: Any) -> None:
-    """Hermes plugin entry point."""
+    """Hermes plugin entry point: STT plus the plugin-owned Gemini TTS provider."""
     ctx.register_transcription_provider(GeminiTranscriptionProvider(ctx))
+    ctx.register_tts_provider(GeminiTTSProvider(ctx))
+
+
+__all__ = [
+    "GeminiTranscriptionProvider",
+    "GeminiTTSProvider",
+    "PROVIDER_NAME",
+    "TTS_PROVIDER_NAME",
+    "register",
+]

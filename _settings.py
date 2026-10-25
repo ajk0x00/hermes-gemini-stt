@@ -13,6 +13,9 @@ from typing import Any
 
 DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 DEFAULT_MODEL = "gemini-3.8-flash"
+DEFAULT_TTS_MODEL = "gemini-3.8-flash-tts"
+DEFAULT_TTS_VOICE = "Kore"
+DEFAULT_TTS_TAG_MODEL = "gemini-3.1-flash-lite"
 
 _THINKING_LEVELS = frozenset({"low", "medium", "high"})
 _TRANSCRIPTION_MODES = frozenset({"verbatim", "smart"})
@@ -33,7 +36,7 @@ class GeminiSettings:
     language_mode: str = "hint"
     keep_uploaded_files: bool = False
     api_key: str = ""
-    user_agent: str = "hermes-gemini-stt/1.0.0"
+    user_agent: str = "hermes-gemini-stt/1.1.0"
 
 
 def _read(ctx: Any, key: str, default: Any) -> Any:
@@ -94,4 +97,40 @@ def load_settings(ctx: Any) -> GeminiSettings:
         language_mode=_choice(ctx, "language_mode", "hint", _LANGUAGE_MODES),
         keep_uploaded_files=_flag(ctx, "keep_uploaded_files", False),
         api_key=_string(ctx, "api_key", ""),
+    )
+
+
+@dataclass(frozen=True)
+class GeminiTTSSettings:
+    """TTS-only knobs; auth and the endpoint are shared with the STT settings snapshot."""
+
+    model: str = DEFAULT_TTS_MODEL
+    voice: str = DEFAULT_TTS_VOICE
+    style: str = ""
+    audio_tags: bool = True
+    audio_tags_streaming: bool = True
+    tag_model: str = DEFAULT_TTS_TAG_MODEL
+    tag_timeout: float = 5.0
+    timeout: float = 120.0
+    max_retries: int = 2
+    ffmpeg_path: str = ""
+
+
+def load_tts_settings(ctx: Any) -> GeminiTTSSettings:
+    """Build the immutable TTS settings snapshot.
+
+    Tagging is deliberately on by default: the plugin is meant to deliver Gemini 3.8 audio
+    tags without any extra configuration. Operators can turn it off, or cap its latency.
+    """
+    return GeminiTTSSettings(
+        model=_string(ctx, "tts_model", DEFAULT_TTS_MODEL) or DEFAULT_TTS_MODEL,
+        voice=_string(ctx, "tts_voice", DEFAULT_TTS_VOICE) or DEFAULT_TTS_VOICE,
+        style=_string(ctx, "tts_style", ""),
+        audio_tags=_flag(ctx, "tts_audio_tags", True),
+        audio_tags_streaming=_flag(ctx, "tts_audio_tags_streaming", True),
+        tag_model=_string(ctx, "tts_tag_model", DEFAULT_TTS_TAG_MODEL) or DEFAULT_TTS_TAG_MODEL,
+        tag_timeout=_number(ctx, "tts_tag_timeout", 5.0, 1.0, 30.0),
+        timeout=_number(ctx, "tts_timeout", 120.0, 10.0, 900.0),
+        max_retries=int(_number(ctx, "tts_max_retries", 2.0, 0.0, 5.0)),
+        ffmpeg_path=_string(ctx, "tts_ffmpeg_path", ""),
     )

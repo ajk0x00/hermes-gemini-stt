@@ -63,6 +63,31 @@ class SettingsTests(unittest.TestCase):
         values = _settings.load_settings(Broken())
         self.assertEqual(values.timeout, 180.0)
 
+    def test_tts_defaults_are_tagging_first(self):
+        values = _settings.load_tts_settings(None)
+        self.assertEqual(values.model, "gemini-3.8-flash-tts")
+        self.assertEqual(values.voice, "Kore")
+        self.assertTrue(values.audio_tags)
+        self.assertTrue(values.audio_tags_streaming)
+        self.assertEqual(values.tag_model, "gemini-3.1-flash-lite")
+        self.assertEqual(values.tag_timeout, 5.0)
+
+    def test_tts_values_are_coerced_and_clamped(self):
+        values = _settings.load_tts_settings(FakeContext({
+            "tts_audio_tags": "off",
+            "tts_audio_tags_streaming": "no",
+            "tts_tag_timeout": 99,
+            "tts_timeout": 1,
+            "tts_max_retries": 99,
+            "tts_style": "  whisper  ",
+        }))
+        self.assertFalse(values.audio_tags)
+        self.assertFalse(values.audio_tags_streaming)
+        self.assertEqual(values.tag_timeout, 30.0)
+        self.assertEqual(values.timeout, 10.0)
+        self.assertEqual(values.max_retries, 5)
+        self.assertEqual(values.style, "whisper")
+
 
 if __name__ == "__main__":
     unittest.main()
