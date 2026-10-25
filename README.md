@@ -302,8 +302,8 @@ as `<laugh>`. The built-in `tts.provider: gemini` does not do this for 3.8; use 
 
 - **WAV** is written directly.
 - **MP3/OGG** is converted with ffmpeg.
-- The plugin auto-detects `ffmpeg` on `PATH`, then the bundled Hermes binary under
-  `~/.hermes/tools/*/bin/ffmpeg`, then `tts_ffmpeg_path`.
+- The plugin checks `tts_ffmpeg_path`, then `PATH`, then the bundled Hermes binary under
+  `~/.hermes/tools/*/bin/ffmpeg`.
 - If no ffmpeg is available, the plugin writes a `.wav` and returns that path rather than pretending
   WAV bytes are MP3/OGG.
 - OGG output is forced to Opus for native voice bubbles.
